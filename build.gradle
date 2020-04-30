@@ -513,35 +513,79 @@ bootstrap.dependsOn assemblyDeps
 //check.dependsOn runIntegrationTests
 
 
-task downloadJdk(type: Download) {
-    description "Download JDK 13"
-
-    project.ext.set("versionFound", true)
+def selectOsType() {
+    if (project.ext.has("jdk_bundle_os")) {
+        return project.ext.jdk_bundle_os
+    }
     String osName = System.properties['os.name']
-
-    // TODO: Windows
     if (osName ==~ /Mac OS X/) {
-        osName = "mac"
-    } else {
-        osName = "linux"
+        return "mac"
+    }
+    if (osName.toLowerCase() ==~ /windows.*/) {
+        return "windows"
+    }
+    if (osName.toLowerCase() ==~ /linux/) {
+        return "linux"
+    }
+    throw new IllegalArgumentException("Can't determine OS type from name: $osName")
+}
+
+class JDKDetails {
+    final String revision
+    final String build
+    final String vendor
+    final String major
+    private final String osName
+    private final String extension
+    final String localPackageName
+    final String unpackedJdkName
+
+    JDKDetails(versionYml, osName) {
+        revision = versionYml.bundled_jdk."$osName".revision
+        build = versionYml.bundled_jdk."$osName".build
+        vendor = versionYml.bundled_jdk."$osName".vendor
+        major = revision.split('\\.').first()
+        this.osName = osName
+
+        switch (osName) {
+            case "windows":
+                extension = "zip"
+                break
+            default:
+                extension = "tar.gz"
+        }
+        unpackedJdkName = "jdk-${major}-${osName}"
+        localPackageName = "${unpackedJdkName}.${extension}"
     }
 
-    def versionYml = new Yaml().load(new File("$projectDir/versions.yml").text)
-    String revision = versionYml.bundled_jdk.revision
-    String build = versionYml.bundled_jdk.build
-    String major = revision.split('\\.').first()
+    String createDownloadUrl() {
+        if (vendor == "adoptopenjdk") {
+            return "https://artifactory.elstc.co/artifactory/oss-jdk-local/adoptopenjdk/OpenJDK${major}U-jdk_x64_${osName}_hotspot_${revision}_${build}.${extension}"
+        }
+        if (vendor == "zulu") {
+            def os = osName == "windows" ? "win" : osName
+            return "https://cdn.azul.com/zulu/bin/zulu${revision}-ca-jdk${major}.${build}-${os}_x64.${extension}"
+        }
+    }
+}
 
-    String unpackedJdkName = "jdk-${major}"
-    project.ext.set("unpackedJdkName", unpackedJdkName)
-    String extension = 'tar.gz'
+task downloadJdk(type: Download) {
+    // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
+
+    project.ext.set("versionFound", true)
+    String osName = selectOsType()
+
+    def versionYml = new Yaml().load(new File("$projectDir/versions.yml").text)
+    def jdkDetails = new JDKDetails(versionYml, osName)
+
+    description "Download JDK ${jdkDetails.major}, OS: ${osName}"
 
     // find url of build artifact
-    String artifactApiUrl = "https://artifactory.elstc.co/artifactory/oss-jdk-local/adoptopenjdk/OpenJDK${major}U-jdk_x64_${osName}_hotspot_${revision}_${build}.${extension}"
+    String artifactApiUrl = jdkDetails.createDownloadUrl()
 
     project.ext.set("jdkURL", System.getenv("JDK_URL") ?: artifactApiUrl)
-    project.ext.set("jdkDownloadLocation", "${projectDir}/build/${unpackedJdkName}.tar.gz")
-    project.ext.set("jdkDirectory",  "${projectDir}/build/${unpackedJdkName}")
-    project.ext.set("buildDirectory",  "${projectDir}/build")
+    project.ext.set("jdkDownloadLocation", "${projectDir}/build/${jdkDetails.localPackageName}")
+    project.ext.set("jdkDirectory",  "${projectDir}/build/${jdkDetails.unpackedJdkName}")
 
     src project.ext.jdkURL
     onlyIfNewer true

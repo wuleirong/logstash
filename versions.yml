@@ -5,9 +5,18 @@ logstash-core: 8.0.0
 logstash-core-plugin-api: 2.1.16
 
 bundled_jdk:
-  vendor: "adoptopenjdk"
-  revision: 13.0.2
-  build: 8
+  linux:
+      vendor: "adoptopenjdk"
+      revision: 13.0.2
+      build: 8
+  mac:
+      vendor: "adoptopenjdk"
+      revision: 13.0.2
+      build: 8
+  windows:
+      vendor: "zulu"
+      revision: 11.39.15
+      build: 0.7
 
 # jruby must reference a *released* version of jruby which can be downloaded from the official download url
 # *and* for which jars artifacts are published for compile-time
