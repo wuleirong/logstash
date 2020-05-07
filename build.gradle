@@ -694,18 +694,23 @@ task deleteLocalJdk(type: Delete) {
 
 // Cannot use tarTree as it does not handle symlinks
 task untarJdk(type: Exec, dependsOn: downloadJdk) {
-    commandLine 'tar', 'xvf', project.ext.jdkDownloadLocation, '-C', "${projectDir}/jdk", '--strip-components', '1'
+    commandLine 'tar', 'xf', project.ext.jdkDownloadLocation, '-C', "${projectDir}/jdk", '--strip-components', '1'
     inputs.file(project.ext.jdkDownloadLocation)
     outputs.dir("${projectDir}/jdk")
 }
 
 task unzipJdk(type: Copy, dependsOn: downloadJdk) {
+    String rootName = null
     from(zipTree("$project.ext.jdkDownloadLocation")) {
         eachFile { fcd ->
+            rootName = rootName ?: fcd.relativePath.segments[0]
             fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
         }
     }
     into "${projectDir}/jdk"
+    doLast {
+        delete "${projectDir}/jdk/$rootName"
+    }
 }
 
 task decompressJdk() {
@@ -721,7 +726,9 @@ task decompressJdk() {
 
 task copyJdk(type: Copy, dependsOn: decompressJdk) {
     // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
-    System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${projectDir}/jdk\""
+    doLast {
+        System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${projectDir}/jdk\""
+    }
 }
 
 if (System.getenv('OSS') != 'true') {
