@@ -151,7 +151,7 @@ namespace "artifact" do
   task "archives_oss" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
     ["linux", "windows"].each do |os_name|
-      puts("[artifact:archives] Building OSS tar.gz/zip of default plugins for OS: #{os_name}")
+      puts("[artifact:archives_oss] Building OSS tar.gz/zip of default plugins for OS: #{os_name}")
       system("./gradlew copyJdk -Pjdk_bundle_os=#{os_name}")
       case os_name
       when "linux"
@@ -352,12 +352,6 @@ namespace "artifact" do
       ["bootstrap", "plugin:install-default", "artifact:clean-bundle-config"].each {|task| Rake::Task[task].invoke }
     end
   end
-
-  task "jdk" do |task, args|
-    system('./gradlew copyJdk')
-    #unless File.exists?(File.join("vendor", "jruby"))
-  end # jruby
-
 
   def ensure_logstash_version_constant_defined
     # we do not want this file required when rake (ruby) parses this file

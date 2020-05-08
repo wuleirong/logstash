@@ -689,7 +689,7 @@ task downloadJdk(type: Download) {
 }
 
 task deleteLocalJdk(type: Delete) {
-    delete ("${projectDir}/jdk")
+    delete "${projectDir}/jdk"
 }
 
 // Cannot use tarTree as it does not handle symlinks
