@@ -244,7 +244,7 @@ tasks.register("assembleTarDistribution") {
   inputs.files fileTree("${projectDir}/x-pack")
   outputs.files file("${buildDir}/logstash-${project.version}-SNAPSHOT.tar.gz")
   doLast {
-      rake(projectDir, buildDir, 'artifact:tar')
+      rake(projectDir, buildDir, 'artifact:archives')
   }
 }
 
@@ -259,7 +259,7 @@ tasks.register("assembleOssTarDistribution") {
   inputs.files fileTree("${projectDir}/logstash-core/lib")
   inputs.files fileTree("${projectDir}/logstash-core/src")
   doLast {
-      rake(projectDir, buildDir, 'artifact:tar_oss')
+      rake(projectDir, buildDir, 'artifact:archives_oss')
   }
 }
 
@@ -276,7 +276,7 @@ tasks.register("assembleZipDistribution") {
   inputs.files fileTree("${projectDir}/x-pack")
   outputs.files file("${buildDir}/logstash-${project.version}.zip")
   doLast {
-      rake(projectDir, buildDir, 'artifact:zip')
+      rake(projectDir, buildDir, 'artifact:archives')
   }
 }
 
@@ -292,7 +292,7 @@ tasks.register("assembleOssZipDistribution") {
   inputs.files fileTree("${projectDir}/logstash-core/src")
   outputs.files file("${buildDir}/logstash-${project.version}.zip")
   doLast {
-      rake(projectDir, buildDir, 'artifact:zip_oss')
+      rake(projectDir, buildDir, 'artifact:archives_oss')
 
   }
 }
