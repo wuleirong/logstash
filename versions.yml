@@ -7,12 +7,12 @@ logstash-core-plugin-api: 2.1.16
 bundled_jdk:
   linux:
       vendor: "adoptopenjdk"
-      revision: 13.0.2
-      build: 8
+      revision: 14
+      build: 36
   mac:
       vendor: "adoptopenjdk"
-      revision: 13.0.2
-      build: 8
+      revision: 14
+      build: 36
   windows:
       vendor: "zulu"
       revision: 11.39.15

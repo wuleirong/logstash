@@ -184,7 +184,16 @@ namespace "artifact" do
 
   desc "Build a DEB of logstash with all dependencies"
   task "deb" => ["prepare", "generate_build_metadata"] do
-    puts("[artifact:deb] building deb package")
+    #with bundled JDKs
+    puts("[artifact:deb] building deb package for OS: linux")
+    puts "DNADBG>> rake executes with JVM " + Java::JavaLang::System.getProperty("java.version") +
+        ", spec: " + Java::JavaLang::System.getProperty("java.specification.version") +
+        ", java.home: " + Java::JavaLang::System.getProperty("java.home")
+    system("./gradlew copyJdk -Pjdk_bundle_os=linux")
+    package_with_jdk("ubuntu", "12.04")
+    system('./gradlew deleteLocalJdk')
+
+    #without JDKs
     package("ubuntu", "12.04")
   end
 
@@ -438,7 +447,11 @@ namespace "artifact" do
     puts "Complete: #{zippath}"
   end
 
-  def package(platform, version, variant=:standard)
+  def package_with_jdk(platform, version, variant=:standard)
+    package(platform, vendor, variant, true)
+  end
+
+  def package(platform, version, variant=:standard, bundle_jdk=false)
     oss = variant == :oss
 
     require "stud/temporary"
@@ -464,6 +477,10 @@ namespace "artifact" do
     if oss
       suffix= "-oss"
       excluder = oss_excluder
+    end
+
+    if bundle_jdk
+      suffix += "-jdk_bundled"
     end
 
     files(excluder).each do |path|
