@@ -586,8 +586,12 @@ namespace "artifact" do
     # TODO(sissel): Invoke Pleaserun to generate the init scripts/whatever
 
     out.name = oss ? "logstash-oss" : "logstash"
-    out.version = "#{LOGSTASH_VERSION}#{PACKAGE_SUFFIX}".gsub(/[.-]([[:alpha:]])/, '~\1')
     out.architecture = "all"
+    if bundle_jdk
+      out.name = out.name + "-with-jdk-x86_64"
+      out.architecture = "x86_64"
+    end
+    out.version = "#{LOGSTASH_VERSION}#{PACKAGE_SUFFIX}".gsub(/[.-]([[:alpha:]])/, '~\1')
     # TODO(sissel): Include the git commit hash?
     out.iteration = "1" # what revision?
     out.url = "http://www.elasticsearch.org/overview/logstash/"
