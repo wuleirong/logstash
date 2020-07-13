@@ -61,7 +61,7 @@ done
 
 # bin/logstash-plugin is a short lived ruby script thus we can use aggressive "faster starting JRuby options"
 # see https://github.com/jruby/jruby/wiki/Improving-startup-time
-export JRUBY_OPTS="$JRUBY_OPTS -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-noverify -X-C -Xcompile.invokedynamic=false"
+export JRUBY_OPTS="$JRUBY_OPTS -J--add-opens java.base/sun.nio.ch=org.jruby.dist -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-noverify -X-C -Xcompile.invokedynamic=false"
 
 tempfile=$(mktemp)
 if [ "x${PRESTART}" == "x" ]; then
@@ -85,7 +85,8 @@ fi
 allopts=("${ENV_VAR_ARGS[@]}" "${opts[@]}")
 program="$(cd `dirname $0`/..; pwd)/bin/logstash"
 
-$(ruby_exec "${LOGSTASH_HOME}/lib/systeminstall/pleasewrap.rb" "${allopts[@]}" ${program} ${LS_OPTS})
+#$(ruby_exec "${LOGSTASH_HOME}/lib/systeminstall/pleasewrap.rb" "${allopts[@]}" ${program} ${LS_OPTS})
+ruby_exec "${LOGSTASH_HOME}/lib/systeminstall/pleasewrap.rb" "${allopts[@]}" ${program} ${LS_OPTS}
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then
