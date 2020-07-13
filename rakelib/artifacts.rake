@@ -172,12 +172,22 @@ namespace "artifact" do
   desc "Build an RPM of logstash with all dependencies"
   task "rpm" => ["prepare", "generate_build_metadata"] do
     puts("[artifact:rpm] building rpm package")
+    system("./gradlew copyJdk -Pjdk_bundle_os=linux")
+    package_with_jdk("centos", "5")
+    system('./gradlew deleteLocalJdk')
+
+    #without JDKs
     package("centos", "5")
   end
 
   desc "Build an RPM of logstash with all dependencies"
   task "rpm_oss" => ["prepare", "generate_build_metadata"] do
     puts("[artifact:rpm] building rpm package")
+    system("./gradlew copyJdk -Pjdk_bundle_os=linux")
+    package_with_jdk("centos", "5", :oss)
+    system('./gradlew deleteLocalJdk')
+
+    #without JDKs
     package("centos", "5", :oss)
   end
 
@@ -186,9 +196,6 @@ namespace "artifact" do
   task "deb" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
     puts("[artifact:deb] building deb package for OS: linux")
-    puts "DNADBG>> rake executes with JVM " + Java::JavaLang::System.getProperty("java.version") +
-        ", spec: " + Java::JavaLang::System.getProperty("java.specification.version") +
-        ", java.home: " + Java::JavaLang::System.getProperty("java.home")
     system("./gradlew copyJdk -Pjdk_bundle_os=linux")
     package_with_jdk("ubuntu", "12.04")
     system('./gradlew deleteLocalJdk')
@@ -200,6 +207,11 @@ namespace "artifact" do
   desc "Build a DEB of logstash with all dependencies"
   task "deb_oss" => ["prepare", "generate_build_metadata"] do
     puts("[artifact:deb] building deb package")
+    system("./gradlew copyJdk -Pjdk_bundle_os=linux")
+    package_with_jdk("ubuntu", "12.04", :oss)
+    system('./gradlew deleteLocalJdk')
+
+    #without JDKs
     package("ubuntu", "12.04", :oss)
   end
 
