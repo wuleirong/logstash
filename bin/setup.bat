@@ -19,14 +19,15 @@ if not "%DIRNAME%" == "bin" (
 for %%I in ("%LS_HOME%..") do set LS_HOME=%%~dpfI
 
 rem ### 2: set java
-if exist "%LS_HOME%\jdk" (
-  set JAVA_HOME="%LS_HOME%\jdk"
-)
 
 if defined JAVA_HOME (
   set JAVA="%JAVA_HOME%\bin\java.exe"
 ) else (
-  for %%I in (java.exe) do set JAVA="%%~$PATH:I"
+  if exist "%LS_HOME%\jdk" (
+    set JAVA="%LS_HOME%\jdk\bin\java.exe"
+  ) else (
+    for %%I in (java.exe) do set JAVA="%%~$PATH:I"
+  )
 )
 
 if not exist %JAVA% (

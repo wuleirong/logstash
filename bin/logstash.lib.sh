@@ -75,16 +75,17 @@ parse_jvm_options() {
 setup_java() {
   # set the path to java into JAVACMD which will be picked up by JRuby to launch itself
   if [ -z "$JAVACMD" ]; then
-    if [ -d "${LOGSTASH_HOME}/jdk" -a -x "${LOGSTASH_HOME}/jdk/bin/java" ]; then
+    if [ -z "$JAVA_HOME" -a -d "${LOGSTASH_HOME}/jdk" -a -x "${LOGSTASH_HOME}/jdk/bin/java" ]; then
       echo "Using bundled JDK, ${LOGSTASH_HOME}/jdk"
-      JAVA_HOME="${LOGSTASH_HOME}/jdk"
-    fi
-    if [ -x "$JAVA_HOME/bin/java" ]; then
-      JAVACMD="$JAVA_HOME/bin/java"
+      JAVACMD="${LOGSTASH_HOME}/jdk/bin/java"
     else
-      set +e
-      JAVACMD=`command -v java`
-      set -e
+      if [ -x "$JAVA_HOME/bin/java" ]; then
+        JAVACMD="$JAVA_HOME/bin/java"
+      else
+        set +e
+        JAVACMD=`command -v java`
+        set -e
+      fi
     fi
   fi
 
