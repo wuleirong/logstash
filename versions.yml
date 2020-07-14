@@ -14,9 +14,9 @@ bundled_jdk:
       revision: 14
       build: 36
   windows:
-      vendor: "zulu"
-      revision: 11.39.15
-      build: 0.7
+      vendor: "adoptopenjdk"
+      revision: 14
+      build: 36
 
 # jruby must reference a *released* version of jruby which can be downloaded from the official download url
 # *and* for which jars artifacts are published for compile-time
