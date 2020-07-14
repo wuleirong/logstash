@@ -61,7 +61,16 @@ done
 
 # bin/logstash-plugin is a short lived ruby script thus we can use aggressive "faster starting JRuby options"
 # see https://github.com/jruby/jruby/wiki/Improving-startup-time
-export JRUBY_OPTS="$JRUBY_OPTS -J--add-opens java.base/sun.nio.ch=org.jruby.dist -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-noverify -X-C -Xcompile.invokedynamic=false"
+java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+echo version "$java_version"
+if  [[ $java_version == 1.8* ]] ;
+then
+    OPEN_JAVA_MODULES=""
+else
+    OPEN_JAVA_MODULES="-J--add-opens java.base/sun.nio.ch=org.jruby.dist"
+fi
+
+export JRUBY_OPTS="$JRUBY_OPTS $OPEN_JAVA_MODULES -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-noverify -X-C -Xcompile.invokedynamic=false"
 
 tempfile=$(mktemp)
 if [ "x${PRESTART}" == "x" ]; then
