@@ -59,6 +59,8 @@ namespace "artifact" do
       # plugins which use jar-dependencies.
       # See more in https://github.com/elastic/logstash/issues/4818
       "vendor/??*/**/.mvn/**/*",
+      "vendor/jruby/bin/.jruby.java_opts",
+      "vendor/jruby/bin/.jruby.module_opts",
       "Gemfile",
       "Gemfile.lock",
       "x-pack/**/*",

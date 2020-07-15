@@ -61,15 +61,6 @@ done
 
 # bin/logstash-plugin is a short lived ruby script thus we can use aggressive "faster starting JRuby options"
 # see https://github.com/jruby/jruby/wiki/Improving-startup-time
-java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
-echo version "$java_version"
-if  [[ $java_version == 1.8* ]] ;
-then
-    OPEN_JAVA_MODULES=""
-else
-    OPEN_JAVA_MODULES="-J--add-opens java.base/sun.nio.ch=org.jruby.dist"
-fi
-
 export JRUBY_OPTS="$JRUBY_OPTS $OPEN_JAVA_MODULES -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-noverify -X-C -Xcompile.invokedynamic=false"
 
 tempfile=$(mktemp)
@@ -94,13 +85,12 @@ fi
 allopts=("${ENV_VAR_ARGS[@]}" "${opts[@]}")
 program="$(cd `dirname $0`/..; pwd)/bin/logstash"
 
-#$(ruby_exec "${LOGSTASH_HOME}/lib/systeminstall/pleasewrap.rb" "${allopts[@]}" ${program} ${LS_OPTS})
-ruby_exec "${LOGSTASH_HOME}/lib/systeminstall/pleasewrap.rb" "${allopts[@]}" ${program} ${LS_OPTS}
+$(ruby_exec "${LOGSTASH_HOME}/lib/systeminstall/pleasewrap.rb" "${allopts[@]}" ${program} ${LS_OPTS})
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then
   cat $tempfile
-  echo "Unable to install system startup script for Logstash."
+  echo "Unable to install system startup script for Logstash. EXit code $exit_code"
 else
   echo "Successfully created system startup script for Logstash"
 fi
