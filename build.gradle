@@ -601,13 +601,14 @@ task downloadJdk(type: Download) {
 
     src project.ext.jdkURL
     onlyIfNewer true
+    overwrite false
     inputs.file("${projectDir}/versions.yml")
     outputs.file(project.ext.jdkDownloadLocation)
     dest new File(project.ext.jdkDownloadLocation)
 
     doLast {
         mkdir project.ext.jdkBundlingDirectory
-        System.out.println "Downloaded to ${project.ext.jdkDownloadLocation}"
+        println "Downloaded to ${project.ext.jdkDownloadLocation}"
     }
 }
 
