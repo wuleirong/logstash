@@ -536,17 +536,18 @@ class JDKDetails {
     final String revision
     final String build
     final String vendor
-    final String major
+    final int major
     private final String osName
     private final String extension
     final String localPackageName
     final String unpackedJdkName
+    private String arch = "x64"
 
     JDKDetails(versionYml, osName) {
         revision = versionYml.bundled_jdk."$osName".revision
         build = versionYml.bundled_jdk."$osName".build
         vendor = versionYml.bundled_jdk."$osName".vendor
-        major = revision.split('\\.').first()
+        major = revision.split('\\.').first() as int
         this.osName = osName
 
         switch (osName) {
@@ -556,17 +557,23 @@ class JDKDetails {
             default:
                 extension = "tar.gz"
         }
-        unpackedJdkName = "jdk-${major}-${osName}"
+        unpackedJdkName = "jdk-${revision}-${osName}"
         localPackageName = "${unpackedJdkName}.${extension}"
     }
 
     String createDownloadUrl() {
-        if (vendor == "adoptopenjdk") {
-            return "https://artifactory.elstc.co/artifactory/oss-jdk-local/adoptopenjdk/OpenJDK${major}U-jdk_x64_${osName}_hotspot_${revision}_${build}.${extension}"
-        }
-        if (vendor == "zulu") {
-            def os = osName == "windows" ? "win" : osName
-            return "https://cdn.azul.com/zulu/bin/zulu${revision}-ca-jdk${major}.${build}-${os}_x64.${extension}"
+        switch (vendor) {
+            case "adoptopenjdk":
+            case "openjdk":
+                String releaseName = major > 8 ?
+                        "jdk-${revision}+${build}":
+                        "jdk${revision}u${build}"
+                return "https://api.adoptopenjdk.net/v3/binary/version/${releaseName}/${osName}/${arch}/jdk/hotspot/normal/${vendor}"
+            case "zulu":
+                def os = osName == "windows" ? "win" : osName
+                return "https://cdn.azul.com/zulu/bin/zulu${revision}-ca-jdk${major}.${build}-${os}_x64.${extension}"
+            default:
+                throw RuntimeException("Can't handle vendor: ${vendor}")
         }
     }
 }
