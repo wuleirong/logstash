@@ -594,7 +594,10 @@ task downloadJdk(type: Download) {
 
     project.ext.set("jdkURL", System.getenv("JDK_URL") ?: artifactApiUrl)
     project.ext.set("jdkDownloadLocation", "${projectDir}/build/${jdkDetails.localPackageName}")
-    project.ext.set("jdkDirectory",  "${projectDir}/build/${jdkDetails.unpackedJdkName}")
+    project.ext.set("jdkDirectory", "${projectDir}/build/${jdkDetails.unpackedJdkName}")
+
+    String jdkFolderName = osName == "mac" ? "jdk.app" : "jdk"
+    project.ext.set("jdkBundlingDirectory", "${projectDir}/${jdkFolderName}")
 
     src project.ext.jdkURL
     onlyIfNewer true
@@ -603,21 +606,20 @@ task downloadJdk(type: Download) {
     dest new File(project.ext.jdkDownloadLocation)
 
     doLast {
-        // TODO: jdk.app for darwin
-        mkdir "${projectDir}/jdk"
+        mkdir project.ext.jdkBundlingDirectory
         System.out.println "Downloaded to ${project.ext.jdkDownloadLocation}"
     }
 }
 
 task deleteLocalJdk(type: Delete) {
-    delete "${projectDir}/jdk"
+    delete project.ext.jdkBundlingDirectory
 }
 
 // Cannot use tarTree as it does not handle symlinks
 task untarJdk(type: Exec, dependsOn: downloadJdk) {
-    commandLine 'tar', 'xf', project.ext.jdkDownloadLocation, '-C', "${projectDir}/jdk", '--strip-components', '1'
+    commandLine 'tar', 'xf', project.ext.jdkDownloadLocation, '-C', project.ext.jdkBundlingDirectory, '--strip-components', '1'
     inputs.file(project.ext.jdkDownloadLocation)
-    outputs.dir("${projectDir}/jdk")
+    outputs.dir(project.ext.jdkBundlingDirectory)
 }
 
 task unzipJdk(type: Copy, dependsOn: downloadJdk) {
@@ -628,9 +630,9 @@ task unzipJdk(type: Copy, dependsOn: downloadJdk) {
             fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
         }
     }
-    into "${projectDir}/jdk"
+    into project.ext.jdkBundlingDirectory
     doLast {
-        delete "${projectDir}/jdk/$rootName"
+        delete "${project.ext.jdkBundlingDirectory}/$rootName"
     }
 }
 
@@ -648,7 +650,7 @@ task decompressJdk() {
 task copyJdk(type: Copy, dependsOn: decompressJdk) {
     // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
     doLast {
-        System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${projectDir}/jdk\""
+        System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${project.ext.jdkBundlingDirectory}\""
         System.out.println "DNADBG>> Task running on JDK ${System.getProperty("java.version")}, java.home: ${System.getProperty("java.home")}"
     }
 }

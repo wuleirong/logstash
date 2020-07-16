@@ -130,7 +130,7 @@ namespace "artifact" do
   desc "Build a tar.gz and zip of default logstash plugins with all dependencies"
   task "archives" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
-    ["linux", "windows"].each do |os_name|
+    ["linux", "windows", "mac"].each do |os_name|
       puts("[artifact:archives] Building tar.gz/zip of default plugins for OS: #{os_name}")
       system("./gradlew copyJdk -Pjdk_bundle_os=#{os_name}")
       case os_name
@@ -138,8 +138,8 @@ namespace "artifact" do
         build_tar('ELASTIC-LICENSE', platform: '-linux-x86-64')
       when "windows"
         build_zip('ELASTIC-LICENSE', platform: '-windows-x86-64')
-      else
-        raise "Unrecognized OS"
+      when "mac"
+        build_tar('ELASTIC-LICENSE', platform: '-mac-x86-64')
       end
       system('./gradlew deleteLocalJdk')
     end
@@ -152,16 +152,16 @@ namespace "artifact" do
   desc "Build a OSS tar.gz and zip of default logstash plugins with all dependencies"
   task "archives_oss" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
-    ["linux", "windows"].each do |os_name|
+    ["linux", "windows", "mac"].each do |os_name|
       puts("[artifact:archives_oss] Building OSS tar.gz/zip of default plugins for OS: #{os_name}")
       system("./gradlew copyJdk -Pjdk_bundle_os=#{os_name}")
       case os_name
       when "linux"
-        build_tar('APACHE-LICENSE-2.0',"-oss", oss_excluder, platform: '-linux-x86-64')
+        build_tar('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-linux-x86-64')
       when "windows"
-        build_zip('APACHE-LICENSE-2.0',"-oss", oss_excluder, platform: '-windows-x86-64')
-      else
-        raise "Unrecognized OS"
+        build_zip('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-windows-x86-64')
+      when "mac"
+        build_tar('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-mac-x86-64')
       end
       system('./gradlew deleteLocalJdk')
     end

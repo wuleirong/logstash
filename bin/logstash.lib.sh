@@ -76,9 +76,19 @@ setup_java() {
   # set the path to java into JAVACMD which will be picked up by JRuby to launch itself
   if [ -z "$JAVACMD" ]; then
     JAVACMD_TEST=`command -v java`
-    if [ -z "$JAVA_HOME" -a -z "$JAVACMD_TEST" -a -d "${LOGSTASH_HOME}/jdk" -a -x "${LOGSTASH_HOME}/jdk/bin/java" ]; then
-      echo "Using bundled JDK: ${LOGSTASH_HOME}/jdk"
-      JAVACMD="${LOGSTASH_HOME}/jdk/bin/java"
+    if [ -z "$JAVA_HOME" -a -z "$JAVACMD_TEST" ]; then
+      if [[ "$OSTYPE" == "darwin"* ]]; then
+        BUNDLED_JDK_PART="jdk.app/Contents/Home"
+      else
+        BUNDLED_JDK_PART="jdk"
+      fi
+      if [ -d "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}" -a -x "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java" ]; then
+        echo "Using bundled JDK: ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
+        JAVACMD="${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java"
+      else
+        echo "Can't find bundled JDK"
+        JAVACMD=""
+      fi
     else
       if [ -x "$JAVA_HOME/bin/java" ]; then
         JAVACMD="$JAVA_HOME/bin/java"
