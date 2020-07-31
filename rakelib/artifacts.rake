@@ -59,12 +59,17 @@ namespace "artifact" do
       # plugins which use jar-dependencies.
       # See more in https://github.com/elastic/logstash/issues/4818
       "vendor/??*/**/.mvn/**/*",
+
+      # Without this when JRuby runs 'pleaserun' gem using the AdoptOpenJDK, during the post install script
+      # it claims that modules are not open for private introspection and suggest it's missing --add-opens
+      # so including these files JRuby run with modules opened to private introspection.
       "vendor/jruby/bin/.jruby.java_opts",
       "vendor/jruby/bin/.jruby.module_opts",
       "Gemfile",
       "Gemfile.lock",
       "x-pack/**/*",
       "jdk/**/*",
+      "jdk.app/**/*",
     ]
   end
 
@@ -493,8 +498,8 @@ namespace "artifact" do
       excluder = oss_excluder
     end
 
-    if bundle_jdk
-      suffix += "-jdk_bundled"
+    unless bundle_jdk
+      suffix += "-no-jdk"
     end
 
     files(excluder).each do |path|
@@ -606,6 +611,9 @@ namespace "artifact" do
     if bundle_jdk
       out.name = out.name + "-with-jdk-x86_64"
       out.architecture = "x86_64"
+    else
+      out.name = out.name + "-no-jdk"
+      out.architecture = "all"
     end
     out.version = "#{LOGSTASH_VERSION}#{PACKAGE_SUFFIX}".gsub(/[.-]([[:alpha:]])/, '~\1')
     # TODO(sissel): Include the git commit hash?

@@ -86,7 +86,7 @@ setup_java() {
         echo "Using bundled JDK: ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
         JAVACMD="${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java"
       else
-        echo "Can't find bundled JDK"
+        echo "Can't find bundled JDK in path ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
         JAVACMD=""
       fi
     else

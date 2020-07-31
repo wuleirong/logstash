@@ -544,9 +544,9 @@ class JDKDetails {
     private String arch = "x64"
 
     JDKDetails(versionYml, osName) {
-        revision = versionYml.bundled_jdk."$osName".revision
-        build = versionYml.bundled_jdk."$osName".build
-        vendor = versionYml.bundled_jdk."$osName".vendor
+        revision = versionYml.bundled_jdk.revision
+        build = versionYml.bundled_jdk.build
+        vendor = versionYml.bundled_jdk.vendor
         major = revision.split('\\.').first() as int
         this.osName = osName
 
@@ -569,9 +569,6 @@ class JDKDetails {
                         "jdk-${revision}+${build}":
                         "jdk${revision}u${build}"
                 return "https://api.adoptopenjdk.net/v3/binary/version/${releaseName}/${osName}/${arch}/jdk/hotspot/normal/${vendor}"
-            case "zulu":
-                def os = osName == "windows" ? "win" : osName
-                return "https://cdn.azul.com/zulu/bin/zulu${revision}-ca-jdk${major}.${build}-${os}_x64.${extension}"
             default:
                 throw RuntimeException("Can't handle vendor: ${vendor}")
         }
@@ -652,7 +649,6 @@ task copyJdk(type: Copy, dependsOn: decompressJdk) {
     // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
     doLast {
         System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${project.ext.jdkBundlingDirectory}\""
-        System.out.println "DNADBG>> Task running on JDK ${System.getProperty("java.version")}, java.home: ${System.getProperty("java.home")}"
     }
 }
 
