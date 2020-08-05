@@ -132,7 +132,7 @@ namespace "artifact" do
   task "all" => ["prepare", "build"]
   task "docker_only" => ["prepare", "build_docker_full", "build_docker_oss", "build_docker_ubi8"]
 
-  desc "Build a tar.gz and zip of default logstash plugins with all dependencies"
+  desc "Build all (jdk bundled and not) tar.gz and zip of default logstash plugins with all dependencies"
   task "archives" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
     ["linux", "windows", "mac"].each do |os_name|
@@ -154,7 +154,12 @@ namespace "artifact" do
     build_zip('ELASTIC-LICENSE')
   end
 
-  desc "Build a OSS tar.gz and zip of default logstash plugins with all dependencies"
+  desc "Build a not JDK bundled tar.gz of default logstash plugins with all dependencies"
+  task "no_bundle_jdk_tar" => ["prepare", "generate_build_metadata"] do
+    build_tar('ELASTIC-LICENSE')
+  end
+
+  desc "Build all (jdk bundled and not) OSS tar.gz and zip of default logstash plugins with all dependencies"
   task "archives_oss" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
     ["linux", "windows", "mac"].each do |os_name|
