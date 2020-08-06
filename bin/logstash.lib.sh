@@ -72,31 +72,36 @@ parse_jvm_options() {
   fi
 }
 
+setup_bundled_jdk_part() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    BUNDLED_JDK_PART="jdk.app/Contents/Home"
+  else
+    BUNDLED_JDK_PART="jdk"
+  fi
+}
+
 setup_java() {
   # set the path to java into JAVACMD which will be picked up by JRuby to launch itself
   if [ -z "$JAVACMD" ]; then
+    setup_bundled_jdk_part
     JAVACMD_TEST=`command -v java`
-    if [ -z "$JAVA_HOME" -a -z "$JAVACMD_TEST" ]; then
-      if [[ "$OSTYPE" == "darwin"* ]]; then
-        BUNDLED_JDK_PART="jdk.app/Contents/Home"
-      else
-        BUNDLED_JDK_PART="jdk"
-      fi
-      if [ -d "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}" -a -x "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java" ]; then
-        echo "Using bundled JDK: ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
-        JAVACMD="${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java"
-      else
-        echo "Can't find bundled JDK in path ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
-        JAVACMD=""
-      fi
-    else
+    if [ -n "$JAVA_HOME" ]; then
+      echo "Using JAVA_HOME defined java: ${JAVA_HOME}"
       if [ -x "$JAVA_HOME/bin/java" ]; then
         JAVACMD="$JAVA_HOME/bin/java"
+        if [ -d "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}" -a -x "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java" ]; then
+          echo "WARNING, using JAVA_HOME while Logastash distribution comes with a bundled JDK"
+        fi
       else
-        set +e
-        JAVACMD=`command -v java`
-        set -e
+        echo "Invalid JAVA_HOME, doesn't contains bin/java executable"
       fi
+    elif [ -d "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}" -a -x "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java" ]; then
+      echo "Using bundled JDK: ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
+      JAVACMD="${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java"
+    elif [ -n "$JAVACMD_TEST" ]; then
+      set +e
+      JAVACMD=`command -v java`
+      set -e
     fi
   fi
 
