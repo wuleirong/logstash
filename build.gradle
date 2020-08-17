@@ -521,7 +521,7 @@ def selectOsType() {
     }
     String osName = System.properties['os.name']
     if (osName ==~ /Mac OS X/) {
-        return "mac"
+        return "darwin"
     }
     if (osName.toLowerCase() ==~ /windows.*/) {
         return "windows"
@@ -564,7 +564,6 @@ class JDKDetails {
     String createDownloadUrl() {
         switch (vendor) {
             case "adoptopenjdk":
-            case "openjdk":
                 String releaseName = major > 8 ?
                         "jdk-${revision}+${build}":
                         "jdk${revision}u${build}"
@@ -575,8 +574,8 @@ class JDKDetails {
     }
 }
 
-task downloadJdk(type: Download) {
-    // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
+tasks.register("downloadJdk", Download) {
+    // CLI project properties: -Pjdk_bundle_os=[windows|linux|darwin]
 
     project.ext.set("versionFound", true)
     String osName = selectOsType()
@@ -593,7 +592,7 @@ task downloadJdk(type: Download) {
     project.ext.set("jdkDownloadLocation", "${projectDir}/build/${jdkDetails.localPackageName}")
     project.ext.set("jdkDirectory", "${projectDir}/build/${jdkDetails.unpackedJdkName}")
 
-    String jdkFolderName = osName == "mac" ? "jdk.app" : "jdk"
+    String jdkFolderName = osName == "darwin" ? "jdk.app" : "jdk"
     project.ext.set("jdkBundlingDirectory", "${projectDir}/${jdkFolderName}")
 
     src project.ext.jdkURL
@@ -609,10 +608,10 @@ task downloadJdk(type: Download) {
     }
 }
 
-task deleteLocalJdk(type: Delete) {
-    // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
+tasks.register("deleteLocalJdk", Delete) {
+    // CLI project properties: -Pjdk_bundle_os=[windows|linux|darwin]
     String osName = selectOsType()
-    String jdkFolderName = osName == "mac" ? "jdk.app" : "jdk"
+    String jdkFolderName = osName == "darwin" ? "jdk.app" : "jdk"
     String jdkBundlingDirectory = "${projectDir}/${jdkFolderName}"
     delete jdkBundlingDirectory
 }
@@ -650,7 +649,7 @@ task decompressJdk() {
 }
 
 task copyJdk(type: Copy, dependsOn: [decompressJdk, bootstrap]) {
-    // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
+    // CLI project properties: -Pjdk_bundle_os=[windows|linux|darwin]
     doLast {
         System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${project.ext.jdkBundlingDirectory}\""
     }

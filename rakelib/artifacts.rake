@@ -135,7 +135,7 @@ namespace "artifact" do
   desc "Build all (jdk bundled and not) tar.gz and zip of default logstash plugins with all dependencies"
   task "archives" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
-    ["linux", "windows", "mac"].each do |os_name|
+    ["linux", "windows", "darwin"].each do |os_name|
       puts("[artifact:archives] Building tar.gz/zip of default plugins for OS: #{os_name}")
       system("./gradlew copyJdk -Pjdk_bundle_os=#{os_name}")
       case os_name
@@ -143,10 +143,10 @@ namespace "artifact" do
         build_tar('ELASTIC-LICENSE', platform: '-linux-x86-64')
       when "windows"
         build_zip('ELASTIC-LICENSE', platform: '-windows-x86-64')
-      when "mac"
-        build_tar('ELASTIC-LICENSE', platform: '-mac-x86-64')
+      when "darwin"
+        build_tar('ELASTIC-LICENSE', platform: '-darwin-x86-64')
       end
-      system("./gradlew deleteLocalJdk --info -Pjdk_bundle_os=#{os_name}")
+      system("./gradlew deleteLocalJdk -Pjdk_bundle_os=#{os_name}")
     end
 
     #without JDK
@@ -163,7 +163,7 @@ namespace "artifact" do
   desc "Build all (jdk bundled and not) OSS tar.gz and zip of default logstash plugins with all dependencies"
   task "archives_oss" => ["prepare", "generate_build_metadata"] do
     #with bundled JDKs
-    ["linux", "windows", "mac"].each do |os_name|
+    ["linux", "windows", "darwin"].each do |os_name|
       puts("[artifact:archives_oss] Building OSS tar.gz/zip of default plugins for OS: #{os_name}")
       system("./gradlew copyJdk -Pjdk_bundle_os=#{os_name}")
       case os_name
@@ -171,8 +171,8 @@ namespace "artifact" do
         build_tar('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-linux-x86-64')
       when "windows"
         build_zip('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-windows-x86-64')
-      when "mac"
-        build_tar('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-mac-x86-64')
+      when "darwin"
+        build_tar('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-darwin-x86-64')
       end
       system("./gradlew deleteLocalJdk -Pjdk_bundle_os=#{os_name}")
     end
@@ -188,9 +188,10 @@ namespace "artifact" do
     puts("[artifact:rpm] building rpm package")
     system("./gradlew copyJdk -Pjdk_bundle_os=linux")
     package_with_jdk("centos", "5")
-    system('./gradlew deleteLocalJdk')
+    system('./gradlew deleteLocalJdk -Pjdk_bundle_os=linux')
 
     #without JDKs
+    system("./gradlew bootstrap") #force the build of Logstash jars
     package("centos", "5")
   end
 
@@ -199,7 +200,7 @@ namespace "artifact" do
     puts("[artifact:rpm] building rpm package")
     system("./gradlew copyJdk -Pjdk_bundle_os=linux")
     package_with_jdk("centos", "5", :oss)
-    system('./gradlew deleteLocalJdk')
+    system('./gradlew deleteLocalJdk -Pjdk_bundle_os=linux')
 
     #without JDKs
     system("./gradlew bootstrap") #force the build of Logstash jars
@@ -213,7 +214,7 @@ namespace "artifact" do
     puts("[artifact:deb] building deb package for OS: linux")
     system("./gradlew copyJdk -Pjdk_bundle_os=linux")
     package_with_jdk("ubuntu", "12.04")
-    system('./gradlew deleteLocalJdk')
+    system('./gradlew deleteLocalJdk -Pjdk_bundle_os=linux')
 
     #without JDKs
     system("./gradlew bootstrap") #force the build of Logstash jars
@@ -225,7 +226,7 @@ namespace "artifact" do
     puts("[artifact:deb_oss] building deb package")
     system("./gradlew copyJdk -Pjdk_bundle_os=linux")
     package_with_jdk("ubuntu", "12.04", :oss)
-    system('./gradlew deleteLocalJdk')
+    system('./gradlew deleteLocalJdk -Pjdk_bundle_os=linux')
 
     #without JDKs
     system("./gradlew bootstrap") #force the build of Logstash jars
