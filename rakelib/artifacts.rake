@@ -146,10 +146,11 @@ namespace "artifact" do
       when "mac"
         build_tar('ELASTIC-LICENSE', platform: '-mac-x86-64')
       end
-      system('./gradlew deleteLocalJdk')
+      system("./gradlew deleteLocalJdk --info -Pjdk_bundle_os=#{os_name}")
     end
 
     #without JDK
+    system("./gradlew bootstrap") #force the build of Logstash jars
     build_tar('ELASTIC-LICENSE')
     build_zip('ELASTIC-LICENSE')
   end
@@ -173,10 +174,11 @@ namespace "artifact" do
       when "mac"
         build_tar('APACHE-LICENSE-2.0', "-oss", oss_excluder, platform: '-mac-x86-64')
       end
-      system('./gradlew deleteLocalJdk')
+      system("./gradlew deleteLocalJdk -Pjdk_bundle_os=#{os_name}")
     end
 
     #without JDK
+    system("./gradlew bootstrap") #force the build of Logstash jars
     build_tar('APACHE-LICENSE-2.0',"-oss", oss_excluder)
     build_zip('APACHE-LICENSE-2.0',"-oss", oss_excluder)
   end
@@ -200,6 +202,7 @@ namespace "artifact" do
     system('./gradlew deleteLocalJdk')
 
     #without JDKs
+    system("./gradlew bootstrap") #force the build of Logstash jars
     package("centos", "5", :oss)
   end
 
@@ -213,17 +216,19 @@ namespace "artifact" do
     system('./gradlew deleteLocalJdk')
 
     #without JDKs
+    system("./gradlew bootstrap") #force the build of Logstash jars
     package("ubuntu", "12.04")
   end
 
   desc "Build a DEB of logstash with all dependencies"
   task "deb_oss" => ["prepare", "generate_build_metadata"] do
-    puts("[artifact:deb] building deb package")
+    puts("[artifact:deb_oss] building deb package")
     system("./gradlew copyJdk -Pjdk_bundle_os=linux")
     package_with_jdk("ubuntu", "12.04", :oss)
     system('./gradlew deleteLocalJdk')
 
     #without JDKs
+    system("./gradlew bootstrap") #force the build of Logstash jars
     package("ubuntu", "12.04", :oss)
   end
 

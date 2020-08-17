@@ -610,7 +610,11 @@ task downloadJdk(type: Download) {
 }
 
 task deleteLocalJdk(type: Delete) {
-    delete project.ext.jdkBundlingDirectory
+    // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
+    String osName = selectOsType()
+    String jdkFolderName = osName == "mac" ? "jdk.app" : "jdk"
+    String jdkBundlingDirectory = "${projectDir}/${jdkFolderName}"
+    delete jdkBundlingDirectory
 }
 
 // Cannot use tarTree as it does not handle symlinks
@@ -645,7 +649,7 @@ task decompressJdk() {
     }
 }
 
-task copyJdk(type: Copy, dependsOn: decompressJdk) {
+task copyJdk(type: Copy, dependsOn: [decompressJdk, bootstrap]) {
     // CLI project properties: -Pjdk_bundle_os=[windows|linux|mac]
     doLast {
         System.out.println "Download location is ${project.ext.jdkDownloadLocation}, Decompressing ${project.ext.jdkDirectory} to \"${project.ext.jdkBundlingDirectory}\""
