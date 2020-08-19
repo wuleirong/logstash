@@ -26,11 +26,9 @@ module ServiceTester
         stdout = cmd.stdout
       end
       stdout.force_encoding(Encoding::UTF_8)
-      jdk_regexp = Regexp.new("^\\s*└─\\d*\\s.*#{jdk_path}")
-      match_result = stdout.match(jdk_regexp)
-      res = (
+      (
         stdout.match(/Active: active \(running\)/) &&
-        stdout.match(jdk_regexp) &&
+        stdout.match(/^\s*└─\d*\s.*#{jdk_path}/) &&
         stdout.match(/#{package}.service - #{package}/)
       )
     end
