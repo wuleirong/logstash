@@ -256,13 +256,13 @@ namespace "artifact" do
   end
 
   desc "Build docker image"
-  task "docker" => ["prepare", "generate_build_metadata", "tar"] do
+  task "docker" => ["prepare", "generate_build_metadata", "archives"] do
     puts("[docker] Building docker image")
     build_docker('full')
   end
 
   desc "Build OSS docker image"
-  task "docker_oss" => ["prepare", "generate_build_metadata", "tar_oss"] do
+  task "docker_oss" => ["prepare", "generate_build_metadata", "archives_oss"] do
     puts("[docker_oss] Building OSS docker image")
     build_docker('oss')
   end
