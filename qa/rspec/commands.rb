@@ -42,6 +42,8 @@ module ServiceTester
       @host    = host
       @options = options
       @client  = CommandsFactory.fetch(options["type"], options["host"])
+      @bundled_jdk = false
+      @skip_jdk_infix = false
     end
 
     def hostname
@@ -74,7 +76,10 @@ module ServiceTester
 
     def install(options={})
       base      = options.fetch(:base, ServiceTester::Base::LOCATION)
-      package   = client.package_for(filename(options), base)
+      @bundled_jdk = options.fetch(:bundled_jdk, false)
+      @skip_jdk_infix = options.fetch(:skip_jdk_infix, false)
+      filename = filename(options)
+      package   = client.package_for(filename, base)
       client.install(package, host)
     end
 
@@ -114,7 +119,16 @@ module ServiceTester
 
     def filename(options={})
       snapshot  = options.fetch(:snapshot, true)
-      "logstash-#{options[:version]}#{(snapshot ?  "-SNAPSHOT" : "")}"
+      if @skip_jdk_infix
+        jdk_infix = ""
+      else
+        if @bundled_jdk
+          jdk_infix = "with-jdk-x86_64-"
+        else
+          jdk_infix = "no-jdk-"
+        end
+      end
+      "logstash-#{jdk_infix}#{options[:version]}#{(snapshot ?  "-SNAPSHOT" : "")}"
     end
   end
 

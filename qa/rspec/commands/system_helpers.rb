@@ -19,14 +19,18 @@ require_relative "base"
 
 module ServiceTester
   module SystemD
-    def running?(hosts, package)
+    def running?(hosts, package, jdk_path='/usr/bin/java')
       stdout = ""
       at(hosts, {in: :serial}) do |host|
         cmd = sudo_exec!("service #{package} status")
         stdout = cmd.stdout
       end
-      (
+      stdout.force_encoding(Encoding::UTF_8)
+      jdk_regexp = Regexp.new("^\\s*└─\\d*\\s.*#{jdk_path}")
+      match_result = stdout.match(jdk_regexp)
+      res = (
         stdout.match(/Active: active \(running\)/) &&
+        stdout.match(jdk_regexp) &&
         stdout.match(/#{package}.service - #{package}/)
       )
     end

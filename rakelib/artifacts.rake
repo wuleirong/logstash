@@ -509,7 +509,9 @@ namespace "artifact" do
       excluder = oss_excluder
     end
 
-    unless bundle_jdk
+    if bundle_jdk
+      suffix += "-with-jdk-x86_64"
+    else
       suffix += "-no-jdk"
     end
 
@@ -620,18 +622,21 @@ namespace "artifact" do
     out.name = oss ? "logstash-oss" : "logstash"
     out.architecture = "all"
     if bundle_jdk
-      out.name = out.name + "-with-jdk-x86_64"
-      out.architecture = "x86_64"
+      case platform
+        when "redhat", "centos"
+          out.architecture = "x86_64"
+        when "debian", "ubuntu"
+          out.architecture = "amd64"
+      end
     else
-      out.name = out.name + "-no-jdk"
       out.architecture = "all"
     end
     out.version = "#{LOGSTASH_VERSION}#{PACKAGE_SUFFIX}".gsub(/[.-]([[:alpha:]])/, '~\1')
     # TODO(sissel): Include the git commit hash?
     out.iteration = "1" # what revision?
-    out.url = "http://www.elasticsearch.org/overview/logstash/"
+    out.url = "https://www.elastic.co/logstash"
     out.description = "An extensible logging pipeline"
-    out.vendor = "Elasticsearch"
+    out.vendor = "Elastic"
 
     # Because we made a mistake in naming the RC version numbers, both rpm and deb view
     # "1.5.0.rc1" higher than "1.5.0". Setting the epoch to 1 ensures that we get a kind
