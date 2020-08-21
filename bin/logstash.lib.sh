@@ -73,7 +73,7 @@ parse_jvm_options() {
 }
 
 setup_bundled_jdk_part() {
-  if [[ "$OSTYPE" == "darwin"* ]]; then
+  if [ "$OSTYPE" = "darwin"* ]; then
     BUNDLED_JDK_PART="jdk.app/Contents/Home"
   else
     BUNDLED_JDK_PART="jdk"
@@ -90,7 +90,7 @@ setup_java() {
       if [ -x "$JAVA_HOME/bin/java" ]; then
         JAVACMD="$JAVA_HOME/bin/java"
         if [ -d "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}" -a -x "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java" ]; then
-          echo "WARNING, using JAVA_HOME while Logastash distribution comes with a bundled JDK"
+          echo "WARNING, using JAVA_HOME while Logstash distribution comes with a bundled JDK"
         fi
       else
         echo "Invalid JAVA_HOME, doesn't contains bin/java executable"

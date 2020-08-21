@@ -24,7 +24,7 @@ if defined JAVA_HOME (
   set JAVA="%JAVA_HOME%\bin\java.exe"
   echo Using JAVA_HOME defined java: %JAVA_HOME%
   if exist "%LS_HOME%\jdk" (
-    echo WARNING, using JAVA_HOME while Logastash distribution comes with a bundled JDK
+    echo WARNING, using JAVA_HOME while Logstash distribution comes with a bundled JDK
   )
 ) else (
   if exist "%LS_HOME%\jdk" (

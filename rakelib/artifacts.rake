@@ -509,12 +509,6 @@ namespace "artifact" do
       excluder = oss_excluder
     end
 
-    if bundle_jdk
-      suffix += "-with-jdk-x86_64"
-    else
-      suffix += "-no-jdk"
-    end
-
     files(excluder).each do |path|
       next if File.directory?(path)
       # Omit any config dir from /usr/share/logstash for packages, since we're
@@ -547,8 +541,19 @@ namespace "artifact" do
       dir.input("#{path}=/etc/logstash")
     end
 
+    if bundle_jdk
+      case platform
+        when "debian", "ubuntu"
+          arch_suffix = "amd64"
+        else
+          arch_suffix = "x86_64"
+      end
+    else
+      arch_suffix = "no-jdk"
+    end
+
     ensure_logstash_version_constant_defined
-    package_filename = "logstash#{suffix}-#{LOGSTASH_VERSION}#{PACKAGE_SUFFIX}.TYPE"
+    package_filename = "logstash#{suffix}-#{LOGSTASH_VERSION}#{PACKAGE_SUFFIX}-#{arch_suffix}.TYPE"
 
     File.join(basedir, "config", "startup.options").tap do |path|
       dir.input("#{path}=/etc/logstash")

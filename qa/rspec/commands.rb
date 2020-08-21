@@ -79,7 +79,7 @@ module ServiceTester
       @bundled_jdk = options.fetch(:bundled_jdk, false)
       @skip_jdk_infix = options.fetch(:skip_jdk_infix, false)
       filename = filename(options)
-      package   = client.package_for(filename, base)
+      package   = client.package_for(filename, @skip_jdk_infix, @bundled_jdk, base)
       client.install(package, host)
     end
 
@@ -119,16 +119,7 @@ module ServiceTester
 
     def filename(options={})
       snapshot  = options.fetch(:snapshot, true)
-      if @skip_jdk_infix
-        jdk_infix = ""
-      else
-        if @bundled_jdk
-          jdk_infix = "with-jdk-x86_64-"
-        else
-          jdk_infix = "no-jdk-"
-        end
-      end
-      "logstash-#{jdk_infix}#{options[:version]}#{(snapshot ?  "-SNAPSHOT" : "")}"
+      "logstash-#{options[:version]}#{(snapshot ?  "-SNAPSHOT" : "")}"
     end
   end
 
