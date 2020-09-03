@@ -567,10 +567,17 @@ class JDKDetails {
                 String releaseName = major > 8 ?
                         "jdk-${revision}+${build}":
                         "jdk${revision}u${build}"
-                return "https://api.adoptopenjdk.net/v3/binary/version/${releaseName}/${osName}/${arch}/jdk/hotspot/normal/${vendor}"
+                String adoptOsName = adaptOsName(osName)
+                return "https://api.adoptopenjdk.net/v3/binary/version/${releaseName}/${adoptOsName}/${arch}/jdk/hotspot/normal/${vendor}"
             default:
                 throw RuntimeException("Can't handle vendor: ${vendor}")
         }
+    }
+
+    private String adaptOsName(String osName) {
+        if (osName == "darwin")
+            return "mac"
+        return osName
     }
 }
 
