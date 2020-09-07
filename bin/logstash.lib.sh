@@ -73,7 +73,8 @@ parse_jvm_options() {
 }
 
 setup_bundled_jdk_part() {
-  if [ "$OSTYPE" = "darwin"* ]; then
+  OS_NAME="$(uname -s)"
+  if [ $OS_NAME = "Darwin" ]; then
     BUNDLED_JDK_PART="jdk.app/Contents/Home"
   else
     BUNDLED_JDK_PART="jdk"
@@ -102,6 +103,7 @@ setup_java() {
       set +e
       JAVACMD=`command -v java`
       set -e
+      echo "Using system java: $JAVACMD"
     fi
   fi
 
