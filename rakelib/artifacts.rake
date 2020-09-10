@@ -268,7 +268,7 @@ namespace "artifact" do
   end
 
   desc "Build UBI8 docker image"
-  task "docker_ubi8" => %w(prepare generate_build_metadata tar) do
+  task "docker_ubi8" => %w(prepare generate_build_metadata archives) do
     puts("[docker_ubi8] Building UBI docker image")
     build_docker('ubi8')
   end
