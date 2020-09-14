@@ -6,10 +6,10 @@
 {% endif -%}
 
 {% if image_flavor == 'oss' -%}
-  {% set tarball = 'logstash-oss-%s.tar.gz' % elastic_version -%}
+  {% set tarball = 'logstash-oss-%s-linux-x86-64.tar.gz' % elastic_version -%}
   {% set license = 'Apache 2.0' -%}
 {% else -%}
-  {% set tarball = 'logstash-%s.tar.gz' % elastic_version -%}
+  {% set tarball = 'logstash-%s-linux-x86-64.tar.gz' % elastic_version -%}
   {% set license = 'Elastic License' -%}
 {% endif -%}
 
@@ -29,7 +29,7 @@ FROM {{ base_image }}
 # Install Java and the "which" command, which is needed by Logstash's shell
 # scripts.
 # Minimal distributions also require findutils tar gzip (procps for integration tests)
-RUN {{ package_manager }} update -y && {{ package_manager }} install -y procps findutils tar gzip java-11-openjdk-devel which && \
+RUN {{ package_manager }} update -y && {{ package_manager }} install -y procps findutils tar gzip which && \
     {{ package_manager }} clean all
 
 # Provide a non-root user to run the process.
@@ -41,7 +41,7 @@ RUN groupadd --gid 1000 logstash && \
 # Add Logstash itself.
 RUN curl -Lo - {{ url_root }}/{{ tarball }} | \
     tar zxf - -C /usr/share && \
-    mv /usr/share/logstash-{{ elastic_version }} /usr/share/logstash && \
+    mv /usr/share/logstash-{{ elastic_version }}-linux-x86-64 /usr/share/logstash && \
     chown --recursive logstash:logstash /usr/share/logstash/ && \
     chown -R logstash:root /usr/share/logstash && \
     chmod -R g=u /usr/share/logstash && \
