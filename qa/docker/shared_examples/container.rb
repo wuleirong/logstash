@@ -11,7 +11,12 @@ shared_examples_for 'the container is configured correctly' do |flavor|
 
   context 'logstash' do
     it 'should run with the correct version' do
-      expect(exec_in_container(@container, 'logstash --version')).to match /#{version}/
+      console_out = exec_in_container(@container, 'logstash --version')
+      console_filtered = console_out.split("\n")
+            .delete_if do |line|
+              line =~ /Using JAVA_HOME defined java|Using system java: /
+            end.join
+      expect(console_filtered).to match /#{version}/
     end
 
     it 'should be running an API server on port 9600' do
@@ -42,8 +47,8 @@ shared_examples_for 'the container is configured correctly' do |flavor|
     end
 
     it 'should have all files owned by the logstash user' do
-      expect(exec_in_container(@container, 'find /usr/share/logstash ! -user logstash')).to be_nil
-      expect(exec_in_container(@container, 'find /usr/share/logstash -user logstash')).not_to be_nil
+      expect(exec_in_container(@container, 'find /usr/share/logstash ! -user logstash')).to be_empty
+      expect(exec_in_container(@container, 'find /usr/share/logstash -user logstash')).not_to be_empty
     end
 
     it 'should have a logstash user with uid 1000' do
