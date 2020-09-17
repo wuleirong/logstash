@@ -478,7 +478,7 @@ namespace "artifact" do
   end
 
   def package_with_jdk(platform, version, variant=:standard)
-    package(platform, vendor, variant, true)
+    package(platform, version, variant, true)
   end
 
   def package(platform, version, variant=:standard, bundle_jdk=false)
@@ -599,9 +599,7 @@ namespace "artifact" do
         out.license = license
         out.attributes[:deb_user] = "root"
         out.attributes[:deb_group] = "root"
-        if not bundle_jdk
-          out.attributes[:deb_suggests] = "java8-runtime-headless"
-        end
+        out.attributes[:deb_suggests] = "java8-runtime-headless" unless bundle_jdk
         out.config_files << "/etc/logstash/startup.options"
         out.config_files << "/etc/logstash/jvm.options"
         out.config_files << "/etc/logstash/log4j2.properties"

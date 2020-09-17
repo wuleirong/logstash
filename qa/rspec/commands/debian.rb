@@ -32,11 +32,11 @@ module ServiceTester
       stdout.match(/^Status: install ok installed$/)
     end
 
-    def package_extension()
+    def package_extension
       "deb"
     end
 
-    def architecture_extension()
+    def architecture_extension
       "amd64"
     end
 

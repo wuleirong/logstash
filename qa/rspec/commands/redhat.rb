@@ -32,11 +32,11 @@ module ServiceTester
       stdout.match(/^logstash.noarch/)
     end
 
-    def package_extension()
+    def package_extension
       "rpm"
     end
 
-    def architecture_extension()
+    def architecture_extension
       "x86_64"
     end
 

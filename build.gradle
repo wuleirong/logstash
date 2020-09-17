@@ -520,16 +520,16 @@ def selectOsType() {
         return project.ext.jdk_bundle_os
     }
     String osName = System.properties['os.name']
-    if (osName ==~ /Mac OS X/) {
-        return "darwin"
+    switch (osName.toLowerCase()) {
+        case ~/mac os x/:
+            return "darwin"
+        case ~/windows.*/:
+            return "windows"
+        case ~/linux/:
+            return "linux"
+        default:
+            throw new IllegalArgumentException("Can't determine OS type from name: $osName")
     }
-    if (osName.toLowerCase() ==~ /windows.*/) {
-        return "windows"
-    }
-    if (osName.toLowerCase() ==~ /linux/) {
-        return "linux"
-    }
-    throw new IllegalArgumentException("Can't determine OS type from name: $osName")
 }
 
 class JDKDetails {
