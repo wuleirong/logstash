@@ -94,7 +94,7 @@ setup_java() {
           echo "WARNING, using JAVA_HOME while Logstash distribution comes with a bundled JDK"
         fi
       else
-        echo "Invalid JAVA_HOME, doesn't contains bin/java executable"
+        echo "Invalid JAVA_HOME, doesn't contain bin/java executable"
       fi
     elif [ -d "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}" -a -x "${LOGSTASH_HOME}/${BUNDLED_JDK_PART}/bin/java" ]; then
       echo "Using bundled JDK: ${LOGSTASH_HOME}/${BUNDLED_JDK_PART}"
